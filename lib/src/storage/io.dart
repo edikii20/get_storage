@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../value.dart';
@@ -21,7 +21,7 @@ class StorageImpl {
 
   void clear() async {
     subject
-      ..value.clear()
+      ..value?.clear()
       ..changeValue("", null);
   }
 
@@ -54,15 +54,15 @@ class StorageImpl {
   }
 
   T? read<T>(String key) {
-    return subject.value[key] as T?;
+    return subject.value?[key] as T?;
   }
 
   T getKeys<T>() {
-    return subject.value.keys as T;
+    return subject.value?.keys as T;
   }
 
   T getValues<T>() {
-    return subject.value.values as T;
+    return subject.value?.values as T;
   }
 
   Future<void> init([Map<String, dynamic>? initialData]) async {
@@ -74,13 +74,13 @@ class StorageImpl {
 
   void remove(String key) {
     subject
-      ..value.remove(key)
+      ..value?.remove(key)
       ..changeValue(key, null);
   }
 
   void write(String key, dynamic value) {
     subject
-      ..value[key] = value
+      ..value?[key] = value
       ..changeValue(key, value);
   }
 
@@ -92,7 +92,7 @@ class StorageImpl {
       await _file.readInto(buffer);
       subject.value = json.decode(utf8.decode(buffer));
     } catch (e) {
-      Get.log('Corrupted box, recovering backup file', isError: true);
+      log('Corrupted box, recovering backup file');
       final _file = await _getFile(true);
 
       final content = await _file.readAsString()
@@ -104,7 +104,7 @@ class StorageImpl {
         try {
           subject.value = (json.decode(content) as Map<String, dynamic>?) ?? {};
         } catch (e) {
-          Get.log('Can not recover Corrupted box', isError: true);
+          log('Can not recover Corrupted box');
           subject.value = {};
         }
       }
@@ -144,7 +144,7 @@ class StorageImpl {
   }
 
   Future<String> _getPath(bool isBackup, String? path) async {
-    final _isWindows = GetPlatform.isWindows;
+    final _isWindows = Platform.isWindows;
     final _separator = _isWindows ? '\\' : '/';
     return isBackup
         ? '$path$_separator$fileName.bak'

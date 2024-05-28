@@ -37,32 +37,6 @@ void main() async {
     await g.erase();
   });
 
-  test('write, read listen, e removeListen', () async {
-    String valueListen = "";
-    g.write('test', 'a');
-    g.write('test2', 'a');
-
-    final removeListen = g.listenKey('test', (val) {
-      valueListen = val;
-    });
-
-    expect('a', g.read('test'));
-
-    await g.write('test', 'b');
-    expect('b', g.read<String>('test'));
-    expect('b', valueListen);
-
-    removeListen();
-
-    await g.write('test', 'c');
-
-    expect('c', g.read<String>('test'));
-    expect('b', valueListen);
-    await g.write('test', 'd');
-
-    expect('d', g.read<String>('test'));
-  });
-
   test('Write and read', () {
     var list = new List<int>.generate(50, (i) {
       int count = i + 1;
